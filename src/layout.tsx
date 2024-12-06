@@ -7,13 +7,13 @@ import PacmanLoader from "react-spinners/PacmanLoader"
 
 //0014 #37
 function Layout() {
-  const { setUser, isAppLoading, setIsAppLoading } = useCurrentApp()
+  const { setUser, isAppLoading, setIsAppLoading, setIsAuthenticated } = useCurrentApp()
   useEffect(() => {
     const fetchAccount = async () => {
       const res = await fetchAccountApi()
       if (res.data) {
         setUser(res.data.user)
-
+        setIsAuthenticated(true)
       }
       setIsAppLoading(false)
     }

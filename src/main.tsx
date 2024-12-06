@@ -15,6 +15,7 @@ import BookPage from 'pages/client/Book.tsx';
 import HomePage from './pages/client/home.tsx';
 import { App } from 'antd';
 import { AppProvider } from 'components/context/app.context';
+import ProtectedRoute from '@/components/auth';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,22 @@ const router = createBrowserRouter([
         path: "/about",
         element: (
           <AboutPage />
+        ),
+      },
+      {
+        path: "/checkout",
+        element: (
+          <ProtectedRoute>
+            checkout
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/admin",
+        element: (
+          <ProtectedRoute>
+            admin
+          </ProtectedRoute>
         ),
       },
     ]
