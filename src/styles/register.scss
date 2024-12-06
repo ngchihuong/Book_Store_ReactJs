@@ -1,0 +1,22 @@
+.register-page {
+    background-color: rgb(235, 235, 235);
+    width: 100%;
+    min-height: 100vh;
+    height: 100%;
+    padding: 35px 0;
+    .main {
+        border-radius: 10px;
+        box-shadow: 3px 3px rgb(220, 220, 220);
+        width: 500px;
+        padding-top: 20px;
+        margin: 0 auto;
+        background-color: rgba($color: white, $alpha: 0.9);
+        .container {
+            padding: 20px 40px;
+            p {
+                text-align: center;
+            }
+        }
+    }
+
+}
