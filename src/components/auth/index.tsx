@@ -1,7 +1,7 @@
 import React from "react"
 import { useCurrentApp } from "../context/app.context";
 import { Button, Result } from "antd";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface IProps {
     children: React.ReactNode;
@@ -16,9 +16,11 @@ export default function ProtectedRoute({ children }: IProps) {
             <>
                 <Result
                     status="404"
-                    title="404"
-                    subTitle="Sorry, the page you visited does not exist."
-                    extra={<Button type="primary">Back Home</Button>}
+                    title="Not Login"
+                    subTitle="Bạn vui lòng đăng nhập để sử dụng tính năng này!"
+                    extra={<Button type="primary">
+                        <Link to='/login'>Đăng nhập</Link>
+                    </Button>}
                 />
             </>
         )
@@ -32,7 +34,9 @@ export default function ProtectedRoute({ children }: IProps) {
                     status="403"
                     title="403"
                     subTitle="Sorry, you are not authorized to access this page."
-                    extra={<Button type="primary">Back Home</Button>}
+                    extra={<Button type="primary">
+                        <Link to='/'>Back Home</Link>
+                    </Button>}
                 />
             )
         }

@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState } from "react";
+import { fetchAccountApi } from "@/services/api";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { PacmanLoader } from "react-spinners";
 
 interface CurrentUserContextType {
     isAuthenticated: boolean;
     setIsAuthenticated: (v: boolean) => void;
-    setUser: (v: IUser) => void;
+    setUser: (v: IUser | null) => void;
     user: IUser | null;
     isAppLoading: boolean;
     setIsAppLoading: (v: boolean) => void;
@@ -18,12 +20,43 @@ export const AppProvider = ({ children }: TProps) => {
     const [user, setUser] = useState<IUser | null>(null);
     const [isAppLoading, setIsAppLoading] = useState<boolean>(true);
 
+    useEffect(() => {
+        const fetchAccount = async () => {
+            const res = await fetchAccountApi()
+            if (res.data) {
+                setUser(res.data.user)
+                setIsAuthenticated(true)
+            }
+            setIsAppLoading(false)
+        }
+        fetchAccount();
+    }, [])
+
     return (
-        <CurrentAppContext.Provider value={{
-            isAuthenticated, user, setIsAuthenticated, setUser, isAppLoading, setIsAppLoading
-        }}>
-            {children}
-        </CurrentAppContext.Provider>
+        <>
+            {isAppLoading === false
+                ?
+                <>
+                    <CurrentAppContext.Provider value={{
+                        isAuthenticated, user, setIsAuthenticated, setUser, isAppLoading, setIsAppLoading
+                    }}>
+                        {children}
+                    </CurrentAppContext.Provider>
+                </>
+                :
+                <div style={{
+                    position: "fixed",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)"
+                }}>
+                    <PacmanLoader
+                        size={30}
+                        color="#36d6b4"
+                    />
+                </div>
+            }
+        </>
     )
 }
 export const useCurrentApp = () => {

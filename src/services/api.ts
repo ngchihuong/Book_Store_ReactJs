@@ -20,3 +20,8 @@ export const fetchAccountApi = () => {
         }
     })
 }
+
+export const logoutApi = () => {
+    const urlBackend = "/api/v1/auth/logout";
+    return axios.post<IBackendRes<ILogin>>(urlBackend)
+}

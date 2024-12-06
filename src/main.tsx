@@ -16,6 +16,10 @@ import HomePage from './pages/client/home.tsx';
 import { App } from 'antd';
 import { AppProvider } from 'components/context/app.context';
 import ProtectedRoute from '@/components/auth';
+import LayoutAdmin from './components/layouts/layout.admin.tsx';
+import DashBoardPage from './pages/admin/dashboard.tsx';
+import ManageBookPage from './pages/admin/manage.book.tsx';
+import ManageUserPage from './pages/admin/manage.user.tsx';
 
 const router = createBrowserRouter([
   {
@@ -50,13 +54,45 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+    ]
+  },
+  {
+    path: "/admin",
+    element: (
+      <LayoutAdmin />
+    ),
+    children: [
       {
-        path: "/admin",
+        index: true,
         element: (
           <ProtectedRoute>
-            admin
+            <DashBoardPage />
           </ProtectedRoute>
-        ),
+        )
+      },
+      {
+        path: "book",
+        element: (
+          <ProtectedRoute>
+            <ManageBookPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "order",
+        element: (
+          <ProtectedRoute>
+            <ManageUserPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "user",
+        element: (
+          <ProtectedRoute>
+            <ManageUserPage />
+          </ProtectedRoute>
+        )
       },
     ]
   },
