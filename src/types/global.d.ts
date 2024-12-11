@@ -54,4 +54,7 @@ declare global {
         createdAt: Date;
         updatedAt: Date;
     }
+    interface ICreateUser {
+        data: IUserTable
+    }
 }

@@ -1,11 +1,13 @@
-import { getUsersApi } from '@/services/api';
+import { createUserApi, getUsersApi } from '@/services/api';
 import { dateRangeValidate } from '@/services/helper';
 import { DeleteTwoTone, EditTwoTone, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Button } from 'antd';
+import { App, Button, Divider, Form, Input, Modal } from 'antd';
 import { useRef, useState } from 'react';
 import DetailUser from './detail.user';
+import { FormProps } from 'antd/lib';
+import CreateUser from './create.user';
 
 // 006 #47
 
@@ -18,6 +20,7 @@ type TSearch = {
     createdAt: string;
     createdAtRange: string;
 }
+
 const TableUser = () => {
     const actionRef = useRef<ActionType>();
 
@@ -30,6 +33,7 @@ const TableUser = () => {
     const [openViewDetail, setOpenViewDetail] = useState<boolean>(false);
     const [dataViewDetail, setDataViewDetail] = useState<IUserTable | null>(null)
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
 
     const columns: ProColumns<IUserTable>[] = [
@@ -98,6 +102,11 @@ const TableUser = () => {
             },
         },
     ];
+
+    const refreshTable = () => {
+        actionRef.current?.reload();
+    }
+
     return (
         <>
             <ProTable<IUserTable, TSearch>
@@ -123,7 +132,8 @@ const TableUser = () => {
                         }
 
                     }
-
+                    //default - new to old
+                    query += `&sort=-createdAt`;
                     if (sort && sort.createdAt) {
                         query += `&sort=${sort.createdAt === 'ascend' ? 'createdAt' : "-createdAt"}`
                     }
@@ -156,7 +166,7 @@ const TableUser = () => {
                         key="button"
                         icon={<PlusOutlined />}
                         onClick={() => {
-                            actionRef.current?.reload();
+                            setIsModalOpen(true)
                         }}
                         type="primary"
                     >
@@ -164,11 +174,17 @@ const TableUser = () => {
                     </Button>,
                 ]}
             />
+         
             <DetailUser
                 openViewDetail={openViewDetail}
                 setOpenViewDetail={setOpenViewDetail}
                 dataViewDetail={dataViewDetail}
                 setDataViewDetail={setDataViewDetail}
+            />
+            <CreateUser
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            refreshTable={refreshTable}
             />
         </>
 
