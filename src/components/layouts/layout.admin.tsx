@@ -78,7 +78,7 @@ export default function LayoutAdmin() {
     }
 
     const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`
-    console.log(urlAvatar);
+    // console.log(urlAvatar);
 
     if (isAuthenticated === false) {
         return (

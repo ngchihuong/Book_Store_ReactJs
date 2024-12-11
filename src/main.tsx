@@ -13,13 +13,14 @@ import Login from './pages/client/auth/login.tsx';
 import Register from './pages/client/auth/register.tsx';
 import BookPage from 'pages/client/Book.tsx';
 import HomePage from './pages/client/home.tsx';
-import { App } from 'antd';
+import { App, ConfigProvider } from 'antd';
 import { AppProvider } from 'components/context/app.context';
 import ProtectedRoute from '@/components/auth';
 import LayoutAdmin from './components/layouts/layout.admin.tsx';
 import DashBoardPage from './pages/admin/dashboard.tsx';
 import ManageBookPage from './pages/admin/manage.book.tsx';
 import ManageUserPage from './pages/admin/manage.user.tsx';
+import enUS from 'antd/locale/en_US';
 
 const router = createBrowserRouter([
   {
@@ -113,7 +114,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App>
       <AppProvider>
-        <RouterProvider router={router} />
+        <ConfigProvider locale={enUS}>
+          <RouterProvider router={router} />
+        </ConfigProvider>
       </AppProvider>
     </App>
   </StrictMode>,

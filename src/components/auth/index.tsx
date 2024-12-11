@@ -9,7 +9,7 @@ interface IProps {
 export default function ProtectedRoute({ children }: IProps) {
     const { isAuthenticated, user } = useCurrentApp();
     const location = useLocation();
-    console.log(location.pathname);
+    // console.log(location.pathname);
 
     if (isAuthenticated === false) {
         return (

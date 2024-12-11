@@ -103,7 +103,7 @@ export default function AppHeader() {
                                 >
                                     <FiShoppingCart className='icon-cart' />
                                 </Badge>
-                            </li>
+                            </li>   
                             <li className="navigation__item mobile"><Divider type='vertical' /></li>
                             <li className="navigation__item mobile">
                                 {!isAuthenticated ?
