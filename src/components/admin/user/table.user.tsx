@@ -1,18 +1,15 @@
-import { createUserApi, getUsersApi } from '@/services/api';
+import { deleteUserApi, getUsersApi } from '@/services/api';
 import { dateRangeValidate } from '@/services/helper';
-import { DeleteTwoTone, EditTwoTone, PlusOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, DeleteTwoTone, EditTwoTone, ExportOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { App, Button, Divider, Form, Input, Modal } from 'antd';
+import { App, Button, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import DetailUser from './detail.user';
-import { FormProps } from 'antd/lib';
 import CreateUser from './create.user';
-
-// 006 #47
-
-
-
+import ImportUser from './import.user';
+import { CSVLink } from 'react-csv';
+import UpdateUser from './update.user';
 
 type TSearch = {
     fullName: string;
@@ -30,12 +27,52 @@ const TableUser = () => {
         pages: 0,
         total: 0,
     })
+    const { message, notification } = App.useApp();
     const [openViewDetail, setOpenViewDetail] = useState<boolean>(false);
     const [dataViewDetail, setDataViewDetail] = useState<IUserTable | null>(null)
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalUploadOpen, setIsModalUploadOpen] = useState(false);
 
+    const [dataExport, setDataExport] = useState<IUserTable[]>([])
 
+    const [dataUpdate, setDataUpdate] = useState<IUserTable | null>(null);
+    const [isModalUpdateOpen, setIsModalUpdateOpen] = useState<boolean>(false);
+
+    const [isDeleteUser, setIsDeleteUser] = useState<boolean>(false);
+
+    const header = [
+        { label: '_id ', key: '_id' },
+        { label: ' fullName', key: 'fullName' },
+        { label: ' email ', key: 'email' },
+        { label: ' phone ', key: 'phone' },
+        { label: ' role ', key: 'role' },
+        { label: ' avatar ', key: 'avatar' },
+        { label: 'isActive ', key: 'isActive' },
+        { label: 'createdAt', key: 'createdAt' },
+        { label: 'updatedAt', key: 'updatedAt' }
+    ]
+
+  
+    const handleDeleteUser = async (_id: string) => {
+        setIsDeleteUser(true);
+        const res = await deleteUserApi(_id);
+        if (res && res.data) {
+            message.success('Xóa người dùng thành công!');
+            refreshTable();
+        } else {
+            notification.error({
+                message: "Có lỗi xảy ra!",
+                description:
+                    res.message && Array.isArray(res.message)
+                        ? res.message[0]
+                        : res.message,
+                duration: 5,
+                placement: "topRight"
+            })
+        }
+        setIsDeleteUser(false)
+    }
     const columns: ProColumns<IUserTable>[] = [
         {
             dataIndex: 'index',
@@ -92,11 +129,28 @@ const TableUser = () => {
                         <EditTwoTone
                             twoToneColor="#f57800"
                             style={{ cursor: "pointer", marginRight: 15 }}
+                            onClick={() => {
+                                setDataUpdate(entity)
+                                setIsModalUpdateOpen(true)
+                            }}
                         />
-                        <DeleteTwoTone
-                            twoToneColor="#ff4d4f"
-                            style={{ cursor: "pointer" }}
-                        />
+                        <Popconfirm
+                            title="Xác nhận xóa user!"
+                            description="Bạn có chắc muốn xóa người dùng này?"
+                            onConfirm={() => handleDeleteUser(entity._id)}
+                            okText="Xác nhận"
+                            cancelText="Hủy"
+                            placement='leftTop'
+                            okButtonProps={{ loading: isDeleteUser }}
+                        >
+                            <span style={{ cursor: "pointer", marginLeft: 20 }}>
+                                <DeleteTwoTone
+                                    twoToneColor="#ff4d4f"
+                                    style={{ cursor: "pointer" }}
+                                />
+                            </span>
+
+                        </Popconfirm>
                     </>
                 )
             },
@@ -115,7 +169,7 @@ const TableUser = () => {
                 actionRef={actionRef}
                 cardBordered
                 request={async (params, sort, filter) => {
-                    console.log(params, sort, filter);
+                    // console.log(params, sort, filter);
                     let query = "";
                     // ?current=${current}&pageSize=${pageSize}
                     if (params) {
@@ -130,18 +184,21 @@ const TableUser = () => {
                         if (createdDateRange) {
                             query += `&createdAt>=/${createdDateRange[0]}&createdAt<=${createdDateRange[1]}`
                         }
-
                     }
                     //default - new to old
                     query += `&sort=-createdAt`;
                     if (sort && sort.createdAt) {
                         query += `&sort=${sort.createdAt === 'ascend' ? 'createdAt' : "-createdAt"}`
+                    } else {
+                        query += `&sort=-createdAt`;
                     }
 
                     const res = await getUsersApi(query);
                     if (res.data) {
                         setMeta(res.data.meta)
+                        setDataExport(res.data?.result ?? [])
                     }
+
                     return {
                         data: res.data?.result,
                         page: 1,
@@ -163,6 +220,27 @@ const TableUser = () => {
                 headerTitle="Table User"
                 toolBarRender={() => [
                     <Button
+                        icon={<ExportOutlined />}
+                        type="primary"
+                    >
+                        <CSVLink
+                            data={dataExport}
+                            headers={header}
+                            filename={"data.csv"}
+                            {...(dataExport as any)}
+                        >Export</CSVLink>
+                    </Button>,
+                    <Button
+                        key="button"
+                        icon={<CloudUploadOutlined />}
+                        onClick={() => {
+                            setIsModalUploadOpen(true)
+                        }}
+                        type="primary"
+                    >
+                        Import
+                    </Button>,
+                    <Button
                         key="button"
                         icon={<PlusOutlined />}
                         onClick={() => {
@@ -174,7 +252,7 @@ const TableUser = () => {
                     </Button>,
                 ]}
             />
-         
+
             <DetailUser
                 openViewDetail={openViewDetail}
                 setOpenViewDetail={setOpenViewDetail}
@@ -182,9 +260,21 @@ const TableUser = () => {
                 setDataViewDetail={setDataViewDetail}
             />
             <CreateUser
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
-            refreshTable={refreshTable}
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+                refreshTable={refreshTable}
+            />
+            <UpdateUser
+                isModalUpdateOpen={isModalUpdateOpen}
+                setIsModalUpdateOpen={setIsModalUpdateOpen}
+                dataUpdate={dataUpdate}
+                setDataUpdate={setDataUpdate}
+                refreshTable={refreshTable}
+            />
+            <ImportUser
+                isModalUploadOpen={isModalUploadOpen}
+                setIsModalUploadOpen={setIsModalUploadOpen}
+                refreshTable={refreshTable}
             />
         </>
 

@@ -33,3 +33,17 @@ export const createUserApi = (fullName: string, password: string, email: string,
     const urlBackend = "/api/v1/user";
     return axios.post<IBackendRes<ICreateUser>>(urlBackend, { fullName, password, email, phone })
 }
+export const bulkCreateUserApi = (data: {
+    fullName: string, password: string, email: string, phone: string
+}[]) => {
+    const urlBackend = "/api/v1/user/bulk-create";
+    return axios.post<IBackendRes<IResponseImport>>(urlBackend, data)
+}
+export const updateUserApi = (_id: string, fullName: string, phone: string) => {
+    const urlBackend = "/api/v1/user";
+    return axios.put<IBackendRes<ICreateUser>>(urlBackend, { _id, fullName, phone })
+}
+export const deleteUserApi = (_id: string) => {
+    const urlBackend = `/api/v1/user/${_id}`;
+    return axios.delete<IBackendRes<ICreateUser>>(urlBackend)
+}

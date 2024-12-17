@@ -1,35 +1,49 @@
-import { createUserApi } from '@/services/api';
+import { createUserApi, updateUserApi } from '@/services/api';
 import { App, Divider, Form, Input, Modal } from 'antd';
 import { FormProps } from 'antd/lib';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type FieldType = {
+    _id: string;
     fullName: string;
-    password: string;
     email: string;
     phone: string;
 };
 interface IProps {
-    isModalOpen: boolean;
-    setIsModalOpen: (v: boolean) => void;
+    isModalUpdateOpen: boolean;
+    setIsModalUpdateOpen: (v: boolean) => void;
     refreshTable: () => void;
+    dataUpdate: IUserTable | null;
+    setDataUpdate: (v: IUserTable | null) => void;
 }
-export default function CreateUser(props: IProps) {
-    const { isModalOpen, setIsModalOpen, refreshTable } = props;
+export default function UpdateUser(props: IProps) {
+    const { isModalUpdateOpen, setIsModalUpdateOpen, refreshTable, dataUpdate, setDataUpdate } = props;
     const [isSubmit, setIsSubmit] = useState<boolean | false>(false)
     const { message, notification } = App.useApp();
+    // antd
     const [form] = Form.useForm();
 
-
+    useEffect(() => {
+        if (dataUpdate) {
+            // form.setFieldValue(key, "value") if update any a value
+            form.setFieldsValue({
+                _id: dataUpdate._id,
+                fullName: dataUpdate.fullName,
+                email: dataUpdate.email,
+                phone: dataUpdate.phone
+            })
+        }
+    }, [dataUpdate])
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setIsSubmit(true);
-        const { fullName, password, email, phone } = values;
-        const res = await createUserApi(fullName, password, email, phone)
+        const { _id, fullName, phone } = values;
+        const res = await updateUserApi(_id, fullName, phone)
         console.log(res);
         if (res.data) {
             message.success('Tạo mới thành công!')
             form.resetFields();
-            setIsModalOpen(false)
+            setIsModalUpdateOpen(false)
+            setDataUpdate(null)
             refreshTable();
         } else {
             notification.error({
@@ -47,9 +61,12 @@ export default function CreateUser(props: IProps) {
     };
     return (
         <>
-            <Modal title="Thêm mới người dùng" open={isModalOpen} onOk={form.submit}
+            <Modal title="Thêm mới người dùng"
+                open={isModalUpdateOpen}
+                onOk={form.submit}
                 onCancel={() => {
-                    setIsModalOpen(false);
+                    setIsModalUpdateOpen(false);
+                    setDataUpdate(null)
                     form.resetFields();
                 }}
                 okText={"Tạo mới"}
@@ -66,21 +83,12 @@ export default function CreateUser(props: IProps) {
                 >
                     <Form.Item<FieldType>
                         labelCol={{ span: 24 }}
-                        label="Họ tên"
-                        name="fullName"
-                        rules={[{ required: true, message: 'Họ tên không được để trống!' }]}
-                        className='fullName-label'
+                        hidden
+                        label="_ID"
+                        name="_id"
+                        rules={[{ required: true, message: '_ID không được để trống!' }]}
                     >
-                        <Input className='fullName-input' />
-                    </Form.Item>
-
-                    <Form.Item<FieldType>
-                        labelCol={{ span: 24 }}
-                        label="Mật khẩu"
-                        name="password"
-                        rules={[{ required: true, message: 'Mật khẩu không được để trống!' }]}
-                    >
-                        <Input.Password />
+                        <Input disabled />
                     </Form.Item>
 
                     <Form.Item<FieldType>
@@ -92,7 +100,17 @@ export default function CreateUser(props: IProps) {
                             { type: "email", message: "Email không được định dạng!" }
                         ]}
                     >
-                        <Input />
+                        <Input disabled />
+                    </Form.Item>
+
+                    <Form.Item<FieldType>
+                        labelCol={{ span: 24 }}
+                        label="Họ tên"
+                        name="fullName"
+                        rules={[{ required: true, message: 'Họ tên không được để trống!' }]}
+                        className='fullName-label'
+                    >
+                        <Input className='fullName-input' />
                     </Form.Item>
 
                     <Form.Item<FieldType>
