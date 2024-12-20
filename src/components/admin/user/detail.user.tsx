@@ -18,7 +18,6 @@ export default function DetailUser(props: IProps) {
        const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${dataViewDetail?.avatar}`
     return (
         <>
-            :
             <Drawer
                 title="Chức năng xem chi tiết"
                 onClose={onClose}
