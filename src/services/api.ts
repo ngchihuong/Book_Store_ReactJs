@@ -45,7 +45,11 @@ export const updateUserApi = (_id: string, fullName: string, phone: string) => {
 }
 export const deleteUserApi = (_id: string) => {
     const urlBackend = `/api/v1/user/${_id}`;
-    return axios.delete<IBackendRes<ICreateUser>>(urlBackend)
+    return axios.delete<IBackendRes<ICreateUser>>(urlBackend, {
+       headers: {
+        delay: 3000
+       }
+    })
 }
 export const getBooksApi = (query: string) => {
     const urlBackend = `/api/v1/book${query}`;
