@@ -53,7 +53,7 @@ const TableUser = () => {
         { label: 'updatedAt', key: 'updatedAt' }
     ]
 
-  
+
     const handleDeleteUser = async (_id: string) => {
         setIsDeleteUser(true);
         const res = await deleteUserApi(_id);
@@ -219,17 +219,18 @@ const TableUser = () => {
                 rowKey="_id"
                 headerTitle="Table User"
                 toolBarRender={() => [
-                    <Button
-                        icon={<ExportOutlined />}
-                        type="primary"
+                    <CSVLink
+                        data={dataExport}
+                        filename={"data.csv"}
+                        {...(dataExport as any)}
                     >
-                        <CSVLink
-                            data={dataExport}
-                            headers={header}
-                            filename={"data.csv"}
-                            {...(dataExport as any)}
-                        >Export</CSVLink>
-                    </Button>,
+                        <Button
+                            icon={<ExportOutlined />}
+                            type="primary"
+                        >
+                            Export
+                        </Button>,
+                    </CSVLink>,
                     <Button
                         key="button"
                         icon={<CloudUploadOutlined />}

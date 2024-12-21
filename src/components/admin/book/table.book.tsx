@@ -1,4 +1,4 @@
-import { getBooksApi } from "@/services/api";
+import { deleteBookApi, getBooksApi } from "@/services/api";
 import { DeleteTwoTone, EditTwoTone, ExportOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns, ProTable } from "@ant-design/pro-components";
 import { App, Button, Popconfirm } from "antd";
@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { CSVLink } from "react-csv";
 import DetailBook from "./detail.book";
 import CreateBook from "./create.book";
+import UpdateBook from "./update.book";
 
 type TSearch = {
     mainText: string;
@@ -22,7 +23,7 @@ export default function TableBook() {
         total: 0,
     })
 
-    // const { message, notification } = App.useApp();
+    const { message, notification } = App.useApp();
     const [openViewDetail, setOpenViewDetail] = useState<boolean>(false);
     const [dataViewDetail, setDataViewDetail] = useState<IBookTable | null>(null)
 
@@ -34,6 +35,26 @@ export default function TableBook() {
     const [isModalUpdateOpen, setIsModalUpdateOpen] = useState<boolean>(false);
 
     const [isDeleteUser, setIsDeleteUser] = useState<boolean>(false);
+
+    const handleDeleteBook = async (_id: string) => {
+        setIsDeleteUser(true);
+        const res = await deleteBookApi(_id);
+        if (res && res.data) {
+            message.success('Xóa sách thành công!');
+            refreshTable();
+        } else {
+            notification.error({
+                message: "Có lỗi xảy ra!",
+                description:
+                    res.message && Array.isArray(res.message)
+                        ? res.message[0]
+                        : res.message,
+                duration: 5,
+                placement: "topRight"
+            })
+        }
+        setIsDeleteUser(false)
+    }
     const columns: ProColumns<IBookTable>[] = [
         {
             title: '_id',
@@ -102,14 +123,14 @@ export default function TableBook() {
                             twoToneColor="#f57800"
                             style={{ cursor: "pointer", marginRight: 5 }}
                             onClick={() => {
-                                setDataUpdate(entity)
                                 setIsModalUpdateOpen(true)
+                                setDataUpdate(entity)
                             }}
                         />
                         <Popconfirm
-                            title="Xác nhận xóa user!"
-                            description="Bạn có chắc muốn xóa người dùng này?"
-                            // onConfirm={() => handleDeleteUser(entity._id)}
+                            title="Xác nhận xóa sách!"
+                            description="Bạn có chắc muốn xóa sách này?"
+                            onConfirm={() => handleDeleteBook(entity._id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                             placement='leftTop'
@@ -141,7 +162,7 @@ export default function TableBook() {
                 actionRef={actionRef}
                 cardBordered
                 request={async (params, sort, filter) => {
-                    console.log(params, sort, filter);
+                    // console.log(params, sort, filter);
                     let query = "";
                     // ?current=${current}&pageSize=${pageSize}
                     if (params) {
@@ -195,16 +216,18 @@ export default function TableBook() {
                 rowKey="_id"
                 headerTitle="Table Book"
                 toolBarRender={() => [
-                    <Button
-                        icon={<ExportOutlined />}
-                        type="primary"
+                    <CSVLink
+                        data={dataExport}
+                        filename={"data.csv"}
+                        {...(dataExport as any)}
                     >
-                        <CSVLink
-                            data={dataExport}
-                            filename={"data.csv"}
-                            {...(dataExport as any)}
-                        >Export</CSVLink>
-                    </Button>,
+                        <Button
+                            icon={<ExportOutlined />}
+                            type="primary"
+                        >
+                            Export
+                        </Button>,
+                    </CSVLink>,
                     // <Button
                     //     key="button"
                     //     icon={<CloudUploadOutlined />}
@@ -230,6 +253,13 @@ export default function TableBook() {
             <CreateBook
                 isModalCreateOpen={isModalCreateOpen}
                 setIsModalCreateOpen={setIsModalCreateOpen}
+                refreshTable={refreshTable}
+            />
+            <UpdateBook
+                isModalUpdateOpen={isModalUpdateOpen}
+                setIsModalUpdateOpen={setIsModalUpdateOpen}
+                dataUpdate={dataUpdate}
+                setDataUpdate={setDataUpdate}
                 refreshTable={refreshTable}
             />
             <DetailBook

@@ -1,4 +1,4 @@
-import { createUserApi, updateUserApi } from '@/services/api';
+import {  updateUserApi } from '@/services/api';
 import { App, Divider, Form, Input, Modal } from 'antd';
 import { FormProps } from 'antd/lib';
 import { useEffect, useState } from 'react';
