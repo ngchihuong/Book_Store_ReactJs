@@ -97,7 +97,7 @@ export default function UpdateBook(props: IProps) {
     },[dataUpdate])
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         setIsSubmit(true);
-        const { _id, mainText, author, category, price, sold, quantity } = values;
+        const { _id, mainText, author, category, price, quantity } = values;
 
         const thumbnail = fileListThumbnail?.[0]?.name ?? "";
         const slider = fileListSlider?.map(item => item.name) ?? [];

@@ -60,6 +60,8 @@ export default function TableBook() {
             title: '_id',
             dataIndex: "_id",
             render(dom, entity, index, action, schema) {
+                console.log(dom, index, action,schema);
+
                 return (
                     <>
                         <a href="#"
@@ -95,6 +97,8 @@ export default function TableBook() {
             sorter: true,
             hideInSearch: true,
             render(dom, entity, index, action, schema) {
+                console.log(dom, index, action,schema);
+                
                 return (
                     <>
                         {
@@ -117,6 +121,8 @@ export default function TableBook() {
             title: 'Action',
             hideInSearch: true,
             render(dom, entity, index, action, schema) {
+                console.log(dom, index, action,schema);
+
                 return (
                     <div style={{ display: "flex" }}>
                         <EditTwoTone
@@ -162,7 +168,7 @@ export default function TableBook() {
                 actionRef={actionRef}
                 cardBordered
                 request={async (params, sort, filter) => {
-                    // console.log(params, sort, filter);
+                    console.log(params, sort, filter);
                     let query = "";
                     // ?current=${current}&pageSize=${pageSize}
                     if (params) {

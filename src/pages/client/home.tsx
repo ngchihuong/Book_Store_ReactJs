@@ -1,16 +1,20 @@
+import MobileFilter from "@/components/client/book/mobile.filter";
 import { getBooksApi, getCategoryAPI } from "@/services/api";
 import { FilterTwoTone, ReloadOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Col, Divider, Form, InputNumber, Pagination, Rate, Row, Spin, Tabs } from "antd";
 import { FormProps } from "antd/lib";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "styles/home.scss";
 
 type FieldType = {
-    fullName: string;
-    password: string;
-    email: string;
-    phone: string;
+    range: {
+        from: number;
+        to: number;
+    }
+    category: string[];
 }
+
 export default function HomePage() {
 
     const [listCategory, setListCategory] = useState<{ label: string, value: string }[]>([])
@@ -22,8 +26,12 @@ export default function HomePage() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [filter, setFilter] = useState<string>("");
     const [sortQuery, setSortQuery] = useState<string>("sort=-sold");
+    const [showMobileFilter, setShowMobileFilter] = useState(false);
+
+
 
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const initCategory = async () => {
@@ -40,7 +48,7 @@ export default function HomePage() {
     useEffect(() => {
         fetchBook()
     }, [currentPage, pageSize, filter, sortQuery]);
-    
+
     const fetchBook = async () => {
         setIsLoading(true)
         let query = `?current=${currentPage}&pageSize=${pageSize}`
@@ -67,33 +75,49 @@ export default function HomePage() {
     }
     const handleChangeFilter = (changedValues: any, values: any) => {
         console.log(">>> check handleChangeFilter", changedValues, values)
+        if (changedValues.category) {
+            const cate = values.category;
+            if (cate && cate.length > 0) {
+                const f = cate.join(',');
+                setFilter(`category=${f}`)
+            } else {
+                setFilter('')
+            }
+        }
     }
     const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
         console.log(values);
-
+        if (values?.range?.from >= 0 && values?.range?.to >= 0) {
+            let f = `price>=${values?.range?.from}&price<=${values?.range?.to}`
+            if (values?.category?.length) { // check xem có tích vào category hay ko :v nếu có thì nối chuỗi
+                const cate = values?.category?.join(',');
+                f += `&category=${cate}`
+            }
+            setFilter(f)
+        }
     }
-    const onChange = (key: string) => {
-        console.log(key);
+    // const onChange = (key: string) => {
+    //     console.log(key);
 
-    }
+    // }
     const items = [
         {
-            key: '1',
+            key: 'sort=-sold',
             label: `Phổ biến`,
             children: <></>,
         },
         {
-            key: '2',
+            key: 'sort=-updatedAt',
             label: `Hàng Mới`,
             children: <></>,
         },
         {
-            key: '3',
+            key: 'sort=price',
             label: `Giá Thấp Đến Cao`,
             children: <></>,
         },
         {
-            key: '4',
+            key: 'sort=-price',
             label: `Giá Cao Đến Thấp`,
             children: <></>,
         },
@@ -109,13 +133,16 @@ export default function HomePage() {
                                     <span style={{ fontWeight: 500 }}> Bộ lọc tìm kiếm</span>
                                 </span>
                                 <ReloadOutlined title="Reset"
-                                    onClick={() => form.resetFields()}
+                                    onClick={() => {
+                                        form.resetFields(),
+                                            setFilter('')
+                                    }}
                                 />
                             </div>
                             <Divider />
                             <Form
                                 onFinish={onFinish}
-                                // form={form}
+                                form={form}
                                 onValuesChange={(changedValues, values) => handleChangeFilter(changedValues, values)}
                             >
                                 <Form.Item
@@ -142,25 +169,33 @@ export default function HomePage() {
                                     label="Khoảng giá"
                                     labelCol={{ span: 24 }}
                                 >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-                                        <Form.Item name={["range", 'from']}>
-                                            <InputNumber
-                                                name='from'
-                                                min={0}
-                                                placeholder="đ TỪ"
-                                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                            />
-                                        </Form.Item>
-                                        <span >-</span>
-                                        <Form.Item name={["range", 'to']}>
-                                            <InputNumber
-                                                name='to'
-                                                min={0}
-                                                placeholder="đ ĐẾN"
-                                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                            />
-                                        </Form.Item>
-                                    </div>
+                                    <Row gutter={[10, 10]} style={{ width: "100%" }}>
+                                        <Col xl={11} md={24}>
+                                            <Form.Item name={["range", 'from']}>
+                                                <InputNumber
+                                                    name='from'
+                                                    min={0}
+                                                    placeholder="đ TỪ"
+                                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    style={{ width: "100%" }}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col xl={2} md={0}>
+                                            <div>-</div>
+                                        </Col>
+                                        <Col xl={11} md={24}>
+                                            <Form.Item name={["range", 'to']}>
+                                                <InputNumber
+                                                    name='to'
+                                                    min={0}
+                                                    placeholder="đ ĐẾN"
+                                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    style={{ width: "100%" }}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
                                     <div>
                                         <Button
                                             onClick={() => form.submit()}
@@ -206,22 +241,32 @@ export default function HomePage() {
                                         onChange={(values) => { setSortQuery(values) }}
                                         style={{ overflow: "auto" }}
                                     />
+                                    <Col xs={24} md={0}>
+                                        <div style={{ marginBottom: 20 }} >
+                                            <span onClick={() => setShowMobileFilter(true)}>
+                                                <FilterTwoTone />
+                                                <span style={{ fontWeight: 500 }}> Lọc</span>
+                                            </span>
+                                        </div>
+                                    </Col>
+                                    <br />
                                 </Row>
                                 <Row className='customize-row'>
                                     {listBook?.map((item, index) => {
                                         return (
-                                            <div className="column" key={`index-${index}`}>
+                                            <div className="column" key={`index-${index}`}
+                                                onClick={() => { navigate(`/book/${item._id}`) }}>
                                                 <div className='wrapper'>
                                                     <div className='thumbnail'>
                                                         <img src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${item.thumbnail}`} alt="thumbnail book" />
                                                     </div>
-                                                    <div className='text'>Tư Duy Về Tiền Bạc - Những Lựa Chọn Tài Chính Đúng Đắn Và Sáng Suốt Hơn</div>
+                                                    <div className='text'>{item.mainText}</div>
                                                     <div className='price'>
-                                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(70000)}
+                                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
                                                     </div>
                                                     <div className='rating'>
                                                         <Rate value={5} disabled style={{ color: '#ffce3d', fontSize: 10 }} />
-                                                        <span>Đã bán 1k</span>
+                                                        <span>Đã bán {item.sold}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -243,6 +288,13 @@ export default function HomePage() {
                         </Spin>
                     </Col>
                 </Row>
+                <MobileFilter
+                    isOpen={showMobileFilter}
+                    setIsOpen={setShowMobileFilter}
+                    handleChangeFilter={handleChangeFilter}
+                    listCategory={listCategory}
+                    onFinish={onFinish}
+                />
             </div>
         </div>
     )
