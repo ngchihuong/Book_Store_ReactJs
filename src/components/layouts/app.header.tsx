@@ -1,8 +1,8 @@
 import { logoutApi } from "@/services/api";
 import { DownOutlined } from "@ant-design/icons";
-import { Badge, Divider, Drawer, Dropdown, Space } from "antd";
+import { Badge, Divider, Drawer, Dropdown, Popover, Space } from "antd";
 import { useCurrentApp } from "components/context/app.context"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FaReact } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
@@ -12,7 +12,7 @@ import "./app.header.scss"
 export default function AppHeader() {
     const [openDrawer, setOpenDrawer] = useState<boolean>(false);
 
-    const { user, setUser, isAuthenticated, setIsAuthenticated } = useCurrentApp()
+    const { user, setUser, isAuthenticated, setIsAuthenticated, carts } = useCurrentApp()
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -54,22 +54,26 @@ export default function AppHeader() {
     const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`
     const contentPopover = () => {
         return (
-            <div className="pop-cart-body">
-                {/* <div className="pop-cart-content">
+            <div className='pop-cart-body'>
+                <div className='pop-cart-content'>
                     {carts?.map((book, index) => {
                         return (
-                    <div className="book"
-                    key={`book-${index}`}
-                    >
-                        <img src={`${import.meta.env.VITE_BASE_URL}/images/book`} alt="" />
-                        <div>{book?.detail?.mainText}</div>
-                        <div className="price">
-                            {new Intl.NumberFormat('vi-VN')}
-                        </div>
-                    </div>
-                       )
-                    }}
-                </div> */}
+                            <div className='book' key={`book-${index}`}>
+                                <img src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${book?.detail?.thumbnail}`} />
+                                <div>{book?.detail?.mainText}</div>
+                                <div className='price'>
+                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(book?.detail?.price ?? 0)}
+                                </div>
+                                {book.quantity}
+                            </div>
+                        )
+                    })}
+                </div>
+                <div className='pop-cart-footer' onClick={() => {
+                    navigate("/order")
+                }} >
+                    <button>Xem giỏ hàng</button>
+                </div>
             </div>
         )
     }
@@ -97,13 +101,23 @@ export default function AppHeader() {
                     <nav className="page-header__bottom">
                         <ul id="navigation" className="navigation">
                             <li className="navigation__item">
-                                <Badge
-                                    count={5}
-                                    size={"small"}
-                                >
-                                    <FiShoppingCart className='icon-cart' />
-                                </Badge>
-                            </li>   
+                                <Popover
+                                    className="popover-carts"
+                                    placement="topRight"
+                                    rootClassName="popover-carts"
+                                    title={"Sản phẩm mới thêm"}
+                                    content={contentPopover}
+                                    arrow={true}>
+                                    <Badge
+                                        count={carts?.length ?? 0}
+                                        size={"small"}
+                                        showZero
+                                    >
+                                        <FiShoppingCart className='icon-cart' />
+                                    </Badge>
+                                </Popover>
+                            </li>
+
                             <li className="navigation__item mobile"><Divider type='vertical' /></li>
                             <li className="navigation__item mobile">
                                 {!isAuthenticated ?

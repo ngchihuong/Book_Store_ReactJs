@@ -1,8 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import Layout from '@/layout'
-import "./styles/global.scss"
-
+import "styles/global.scss"
 //006 layout
 import {
   createBrowserRouter,
@@ -21,6 +20,7 @@ import DashBoardPage from './pages/admin/dashboard.tsx';
 import ManageBookPage from './pages/admin/manage.book.tsx';
 import ManageUserPage from './pages/admin/manage.user.tsx';
 import enUS from 'antd/locale/en_US';
+import OrderPage from './pages/client/order.tsx';
 
 const router = createBrowserRouter([
   {
@@ -45,6 +45,12 @@ const router = createBrowserRouter([
         path: "/about",
         element: (
           <AboutPage />
+        ),
+      },
+      {
+        path: "/order",
+        element: (
+          <OrderPage />
         ),
       },
       {

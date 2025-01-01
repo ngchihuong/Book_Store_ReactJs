@@ -1,10 +1,11 @@
-import { Col, Divider, Rate, Row } from "antd";
+import { App, Col, Divider, Rate, Row } from "antd";
 import ImageGallery from "react-image-gallery";
 import { useEffect, useRef, useState } from "react";
 import "styles/book.scss";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { BsCartPlus } from "react-icons/bs";
 import ModalGallery from "./modal.gallery";
+import { useCurrentApp } from "@/components/context/app.context";
 
 interface IProps {
     currentBook: IBookTable | null;
@@ -14,6 +15,8 @@ type UserAction = "MINUS" | "PLUS";
 export default function BookDetail(props: IProps) {
 
     const { currentBook } = props;
+    const { carts, setCarts } = useCurrentApp();
+
     const [imageGallery, setImageGallery] = useState<{
         original: string;
         thumbnail: string;
@@ -24,6 +27,8 @@ export default function BookDetail(props: IProps) {
 
     const [isOpenModalGallery, setIsOpenModalGallery] = useState<boolean>(false)
     const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+    const { message } = App.useApp();
 
     const refGallery = useRef<ImageGallery>(null);
 
@@ -81,8 +86,48 @@ export default function BookDetail(props: IProps) {
                 console.log(value);
             }
         }
-
     }
+
+    const handleAddToCart = () => {
+        //update localStorage
+        const cartStorage = localStorage.getItem("carts")
+        if (cartStorage && currentBook) {
+            //update
+            const carts = JSON.parse(cartStorage) as ICart[];
+            //check exists
+            let isExistIndex = carts.findIndex(c => c._id === currentBook?._id);
+            if (isExistIndex > -1) {
+                carts[isExistIndex].quantity = carts[isExistIndex].quantity + currentQuantity;
+            } else {
+                carts.push({
+                    quantity: currentQuantity,
+                    _id: currentBook._id,
+                    detail: currentBook
+                })
+            }
+
+            localStorage.setItem("carts", JSON.stringify(carts));
+
+            //sync React Context
+            setCarts(carts)
+            message.success("Thêm vào giỏ hàng thành công!")
+        } else {
+            //create
+            const data = [{
+                _id: currentBook?._id!,
+                quantity: currentQuantity,
+                detail: currentBook!
+            }]
+            localStorage.setItem("carts", JSON.stringify(data))
+
+            //sync React Context
+            setCarts(data)
+            message.success("Thêm vào giỏ hàng thành công!")
+        }
+    }
+
+    console.log(carts.length)
+
     return (
         <>
             <div style={{ background: '#efefef', padding: "20px 0" }}>
@@ -144,7 +189,7 @@ export default function BookDetail(props: IProps) {
                                         </span>
                                     </div>
                                     <div className='buy'>
-                                        <button className='cart'>
+                                        <button className='cart' onClick={() => handleAddToCart()}>
                                             <BsCartPlus className='icon-cart' />
                                             <span>Thêm vào giỏ hàng</span>
                                         </button>
