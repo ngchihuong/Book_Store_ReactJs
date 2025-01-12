@@ -8,7 +8,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import AboutPage from 'pages/client/About';
-import Login from './pages/client/auth/login.tsx';
+import Login from '@/pages/client/auth/login.tsx';
 import Register from './pages/client/auth/register.tsx';
 import BookPage from 'pages/client/Book.tsx';
 import HomePage from './pages/client/home.tsx';
@@ -21,6 +21,8 @@ import ManageBookPage from './pages/admin/manage.book.tsx';
 import ManageUserPage from './pages/admin/manage.user.tsx';
 import enUS from 'antd/locale/en_US';
 import OrderPage from './pages/client/order.tsx';
+import HistoryPage from '@/pages/client/history.tsx';
+import ManageOrderPage from './pages/admin/manage.order.tsx';
 
 const router = createBrowserRouter([
   {
@@ -50,7 +52,9 @@ const router = createBrowserRouter([
       {
         path: "/order",
         element: (
-          <OrderPage />
+          <ProtectedRoute>
+            <OrderPage />
+          </ProtectedRoute>
         ),
       },
       {
@@ -58,6 +62,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             checkout
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/history",
+        element: (
+          <ProtectedRoute>
+            <HistoryPage/>
           </ProtectedRoute>
         ),
       },
@@ -89,7 +101,7 @@ const router = createBrowserRouter([
         path: "order",
         element: (
           <ProtectedRoute>
-            <ManageUserPage />
+            <ManageOrderPage />
           </ProtectedRoute>
         )
       },

@@ -1,7 +1,12 @@
+import AdminDashboard from "@/components/admin/dashboard";
+
 export default function DashBoardPage() {
     return (
         <>
-        <div>Dashboard Page</div>
+            <div style={{ padding: "10px 20px" }}
+            >
+                <AdminDashboard />
+            </div>
         </>
     )
 }

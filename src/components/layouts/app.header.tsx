@@ -8,9 +8,11 @@ import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
 import { Link, useNavigate } from "react-router-dom";
 import "./app.header.scss"
+import ManageAccount from "../client/account";
 
-export default function AppHeader() {
+export default function AppHeader(props: any) {
     const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+    const [openManageAccount, setOpenManageAccount] = useState<boolean>(false);
 
     const { user, setUser, isAuthenticated, setIsAuthenticated, carts } = useCurrentApp()
     const navigate = useNavigate();
@@ -28,7 +30,7 @@ export default function AppHeader() {
         {
             label: <label
                 style={{ cursor: "pointer" }}
-                onClick={() => alert("me")}
+                onClick={() => setOpenManageAccount(true)}
             >Quản lý tài khoản</label>,
             key: 'account',
         },
@@ -151,6 +153,10 @@ export default function AppHeader() {
                 <p onClick={() => handleLogout()}>Đăng xuất</p>
                 <Divider />
             </Drawer>
+            <ManageAccount
+                isModalOpen={openManageAccount}
+                setModalOpen={setOpenManageAccount}
+            />
         </>
 
     )
